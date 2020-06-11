@@ -1,12 +1,17 @@
 const net = require("net");
-const host = "25.27.158.232";
-const port = "1904";
+TC3 = {
+    host: "25.27.158.232",
+    post: "4444",
+    version: "",
+    debug: 1,
+
+    connected: [],
+};
 
 const users = {
     "25.27.158.232":{username:"Scion Spy"},
     "25.77.132.39":{username:"Bejebajay"}
 };
-
 
 const server = net.createServer();
 
@@ -20,28 +25,45 @@ server.on("connection", function(sock) {
         user = users[sock.remoteAddress].username;
     };
 
+    TC3.send = function(data){
+        d=JSON.stringify(data);
+        if(debug) console.log(`Server Says: ${d}`);
+        sock.write(d);
+    };
+
     console.log(`Client connected: ${user}`);
+    TC3.send({ cmd:"502", username=user })
 
     sock.on("data", function(d) { //d = data
         data = [];
-        console.log(`${user} says: ${d}`);
-        d = JSON.parse(d);
-        console.log(`Cmd: ${d.cmd}`)
         if(!d)return;
+        console.log(`${user} says: ${d}`);
+        data = JSON.parse(d);
 
-        function s(txt){
-            if(!txt) return
-            console.log(`-> ${txt}`);
-        };
+        if(TC3.Event[data.cmd]) return TC3.Events[data.cmd](data);
+        /**
+    //send({cmd:"", data})
+    //init
+        if(d.cmd==100){
+            if(!users[sock.remoteAddress]){
+                TC3.send({cmd:"501"})} //Login Failed. (IP/Name not saved.)
+            }else{
+                TC3.send({cmd:"500"}) //Login Successful.
+            }
+        if(d.cmd==1000){TC3.send({cmd:"1000", version:TC3.version});};
+        //1200 -- NavData
 
-        if(d.cmd==100){ s(100); sock.write("100")}
-        if(d.cmd==101){s(101);sock.write("101");sock.end();};
-        if(d.cmd==404){s(404);sock.write("404");};
+        //900 -- "Get Ores"
+        // * (recieves) {cmd:"900", sectorid:number}
+        // * (expects) {cmd:"",objects:[{orename:"Not found"}],numitems:number}
+        // * * (After - recieves) {cmd:"701", ???}
+*/
     });
 
 
     sock.once("close", function() {
         console.log(`Connection to ${user} closed.`);
+        TC3.send({ cmd:"503", username=user });
     });
 
 
@@ -53,7 +75,7 @@ server.on("connection", function(sock) {
 
 
 
-server.listen(port, host, function() { //CreatServer.
+server.listen(TC3.port, TC3.host, function() { //CreateServer.
     console.log(`Server listening on %j`, server.address());
       //"%j = json -> string"
 });
