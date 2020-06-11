@@ -25,6 +25,8 @@ server.on("connection", function(sock) {
     sock.on("data", function(d) { //d = data
         data = [];
         console.log(`${user} says: ${d}`);
+        d = JSON.parse(d);
+        console.log(`Cmd: ${d.cmd}`)
         if(!d)return;
 
         function s(txt){
@@ -32,9 +34,9 @@ server.on("connection", function(sock) {
             console.log(`-> ${txt}`);
         };
 
-        if(d==100){ s(100); sock.write("100")}
-        if(d==101){s(100);sock.write("101");sock.end();};
-        if(d==404){s(404);sock.write("404");};
+        if(d.cmd==100){ s(100); sock.write("100")}
+        if(d.cmd==101){s(101);sock.write("101");sock.end();};
+        if(d.cmd==404){s(404);sock.write("404");};
     });
 
 
