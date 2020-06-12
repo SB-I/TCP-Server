@@ -1,7 +1,7 @@
 const net = require("net");
 TC3 = {
     host: "25.27.158.232",
-    post: "4444",
+    port: "4444",
     version: "",
     debug: 1,
 
@@ -27,12 +27,12 @@ server.on("connection", function(sock) {
 
     TC3.send = function(data){
         d=JSON.stringify(data);
-        if(debug) console.log(`Server Says: ${d}`);
+        if(TC3.debug) console.log(`Server Says: ${d}`);
         sock.write(d);
     };
 
     console.log(`Client connected: ${user}`);
-    TC3.send({ cmd:"502", username=user })
+    TC3.send({ cmd:"502", username:user })
 
     sock.on("data", function(d) { //d = data
         data = [];
@@ -63,7 +63,7 @@ server.on("connection", function(sock) {
 
     sock.once("close", function() {
         console.log(`Connection to ${user} closed.`);
-        TC3.send({ cmd:"503", username=user });
+        TC3.send({ cmd:"503", username:user });
     });
 
 
