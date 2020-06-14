@@ -1,4 +1,5 @@
 const net = require("net");
+let Events = require("./events.js");
 TC3 = {
     host: "25.27.158.232",
     port: "4444",
@@ -6,6 +7,7 @@ TC3 = {
     debug: 1,
 
     connected: [],
+    Events: Events,
 };
 
 const users = {
@@ -35,12 +37,16 @@ server.on("connection", function(sock) {
     TC3.send({ cmd:"502", username:user })
 
     sock.on("data", function(d) { //d = data
-        data = [];
         if(!d)return;
         console.log(`${user} says: ${d}`);
-        data = JSON.parse(d);
+        let data = JSON.parse(d);
+        //if(!data || data==null) return;
 
-        if(TC3.Event[data.cmd]) return TC3.Events[data.cmd](data);
+        try{
+            TC3.Events[data.cmd](data);
+        }catch(err){
+            console.error(err);
+        };
         /**
     //send({cmd:"", data})
     //init
@@ -64,11 +70,13 @@ server.on("connection", function(sock) {
     sock.once("close", function() {
         console.log(`Connection to ${user} closed.`);
         TC3.send({ cmd:"503", username:user });
+        //array.remove() FN get this user out array of "TC3.connected"
     });
 
 
     sock.on("error", function(err) {
-        if(err == "Error: read ECONNRESET")return
+        if(err == "Error: read ECONNRESET")return;
+        if(err == "Error: This socket has been ended by the other party")return;
         console.log(`Connection error -> ${user} : ${err}`);
     });
 });
@@ -79,3 +87,6 @@ server.listen(TC3.port, TC3.host, function() { //CreateServer.
     console.log(`Server listening on %j`, server.address());
       //"%j = json -> string"
 });
+
+
+module.exports = TC3;

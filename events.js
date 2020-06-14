@@ -1,5 +1,5 @@
+TC3 = require("./index.js");
 TC3.Events = {};
-
 /**
 TC3.Events[] = function(data){
 
@@ -35,8 +35,30 @@ TC3.Events[100] = function(data){
 };
 
 
+TC3.Events[101] = function(data){ //Client Logging out.
+    //{cmd:"101"};
+    /**
+    sock.once("close", function() {
+        console.log(`Connection to ${user} closed.`);
+        TC3.send({ cmd:"503", username:user });
+        //array.remove() FN get this user out array of "TC3.connected"
+    });
+     */
+};
+
+
 TC3.Events[700] = function(data){ //Load Sector Roid DB.
     //{cmd:"700",sectorid:number};
-
-
 };
+
+
+TC3.Events[1000] = function(data){ //Get Client Version, Send Server Version.
+    //{cmd:"1000", version:string}
+    let version=[server=TC3.Version, client=data.version];
+    if(version.client != version.server){
+        //TC3.Send()//Version out of date!!
+    };
+};
+
+
+module.exports = TC3.Events;
